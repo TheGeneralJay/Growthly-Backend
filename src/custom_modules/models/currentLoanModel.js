@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const User = require("./userModel");
 
 const CurrentLoanSchema = new mongoose.Schema({
   lender_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
