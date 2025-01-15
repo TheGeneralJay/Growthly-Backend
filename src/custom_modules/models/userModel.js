@@ -3,13 +3,16 @@ const mongoose = require("mongoose");
 const UserSchema = new mongoose.Schema({
   first_name: String,
   last_name: String,
-  phone_number: String,
-  street_address: String,
   email: String,
-  email_verified: Boolean,
-  username: String,
   password: String,
+  street_address: String, // Maybe make it's own object for address, province, postal.
+  province: String, // Maybe make it's own object for address, province, postal.
+  postal_code: String, // Maybe make it's own object for address, province, postal.
+  phone_number: String,
+  username: String,
   user_type: String, // enum -- lender/borrower
+  sin_number: String,
+  email_verified: Boolean,
   payment_id: String,
   past_loans: String, // Placeholder - to be its own class.
   current_loans: String, // Placeholder - to be its own class.
