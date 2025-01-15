@@ -7,3 +7,4 @@
 - [ ] Refactor address into object.
 - [ ] Refactor past loans into its own schema.
 - [ ] Refactor current loans into its own schema.
+- [ ] CONTINUOUS: Clean up any messy implementations.
