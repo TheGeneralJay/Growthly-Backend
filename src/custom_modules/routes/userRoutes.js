@@ -47,9 +47,9 @@ router.get("/:id", async (req, res) => {
 });
 
 // -----------------------------------------------
-// *** CREATE USER ***
+// *** CREATE USER *** SIGNUP ***
 // -----------------------------------------------
-router.post("/", async (req, res) => {
+router.post("/register", async (req, res) => {
   // Grab request body.
   let {
     first_name,

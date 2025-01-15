@@ -11,7 +11,7 @@ const UserSchema = new mongoose.Schema({
   phone_number: String,
   username: String,
   user_type: String, // enum -- lender/borrower
-  sin_number: String,
+  sin_number: String, // To have it's own DB.
   email_verified: Boolean,
   payment_id: String,
   past_loans: String, // Placeholder - to be its own class.
@@ -19,7 +19,6 @@ const UserSchema = new mongoose.Schema({
   last_credit_score: Number,
   user_banned: Boolean,
   user_banned_until: Date,
-  insurance_number: String, // To have its own DB as well.
 });
 
 const User = mongoose.model("User", UserSchema);
