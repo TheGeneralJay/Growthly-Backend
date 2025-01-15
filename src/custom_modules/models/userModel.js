@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const CurrentLoan = require("./currentLoanModel");
+const PastLoan = require("./pastLoanModel");
 
 const UserSchema = new mongoose.Schema({
   first_name: String,
@@ -14,8 +16,8 @@ const UserSchema = new mongoose.Schema({
   sin_number: String, // To have it's own DB.
   email_verified: Boolean,
   payment_id: String,
-  past_loans: String, // Placeholder - to be its own class.
-  current_loans: String, // Placeholder - to be its own class.
+  past_loans: { type: mongoose.Schema.Types.ObjectId, ref: "PastLoan" },
+  current_loans: { type: mongoose.Schema.Types.ObjectId, ref: "CurrentLoan" },
   last_credit_score: Number,
   user_banned: Boolean,
   user_banned_until: Date,
