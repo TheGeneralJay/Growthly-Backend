@@ -13,4 +13,5 @@
   - [ ] Add enums for loan_measure (WEEKS, YEARS, MONTHS).
   - [ ] Add enums for payment_freq (MONTHLY, WEEKLY).
   - [ ] Add enums for loan_status (GOOD, MISSED_PAYMENT).
+- [ ] Add custom error messages into its own file.
 - [ ] CONTINUOUS: Clean up any messy implementations.
