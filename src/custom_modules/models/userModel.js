@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-const CurrentLoan = require("./currentLoanModel");
-const PastLoan = require("./pastLoanModel");
+const UserTypes = require("../../utils/userTypes.js");
 
 const UserSchema = new mongoose.Schema({
   first_name: String,
@@ -12,7 +11,7 @@ const UserSchema = new mongoose.Schema({
   postal_code: String, // Maybe make it's own object for address, province, postal.
   phone_number: String,
   username: String,
-  user_type: String, // enum -- lender/borrower
+  user_type: { type: String, enum: UserTypes, uppercase: true },
   sin_number: String, // To have it's own DB.
   email_verified: Boolean,
   payment_id: String,
