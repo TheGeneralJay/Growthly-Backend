@@ -4,6 +4,7 @@
 - [X] Basic user CRUD implementation.
 - [X] Basic login implementation.
 - [x] Add enums for LENDER / BORROWER.
+  - [ ] Add error message for invalid input on user type.
 - [ ] Refactor address into object.
 - [X] Refactor past loans into its own schema.
   - [ ] Add necessary CRUD implementation for past loans.
