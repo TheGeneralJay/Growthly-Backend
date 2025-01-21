@@ -16,7 +16,7 @@
   - [x] Add enums for payment_freq (MONTHLY, WEEKLY).
   - [x] Add enums for loan_status (GOOD, MISSED_PAYMENT).
 - [x] Add loanBoard schema.
-  - [ ] Add necessary CRUD implementation.
+  - [X] Add necessary CRUD implementation.
   - [ ] Connect loans to current/past loans by ID.
 - [ ] Add custom error messages into its own file.
 - [ ] Place the try/catch "check for valid ID" block into a function if possible.
