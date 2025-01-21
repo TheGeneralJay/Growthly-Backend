@@ -77,13 +77,13 @@ router.post("/", async (req, res) => {
   try {
     // Check if lender_id matches a user in the DB.
     // *** MAKE IT SO IT ENSURES THE USER IS A LENDER LATER.
-    const user = db.userModel.findById(newLoan.lender_id);
+    if (checkObjectId(newLoan.lender_id)) {
+      const user = db.userModel.findById(newLoan.lender_id);
 
-    if (!user) {
-      throw new Error();
+      if (!user) {
+        throw new Error();
+      }
     }
-
-    newLoan.lender_id = user._id;
   } catch (err) {
     res.status(400).send("Invalid User");
     return;
