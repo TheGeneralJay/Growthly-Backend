@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const UserTypes = require("../../utils/userTypes.js");
+const UserTypes = require("../../utils/enums/userTypes.js");
 
 const UserSchema = new mongoose.Schema({
   first_name: String,
