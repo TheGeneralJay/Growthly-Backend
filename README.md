@@ -18,6 +18,8 @@
 - [x] Add loanBoard schema.
   - [X] Add necessary CRUD implementation.
   - [ ] Connect loans to current/past loans by ID.
+  - [X] Connect a user object ID to the loans.
+  - [ ] Connect loan object ID to the user.
 - [ ] Add custom error messages into its own file.
 - [ ] Place the try/catch "check for valid ID" block into a function if possible.
 - [ ] CONTINUOUS: Clean up any messy implementations.
