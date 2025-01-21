@@ -53,6 +53,7 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   // Grab request body.
   let newLoan = {
+    lender_id: req.body.lender_id,
     amount: req.body.amount,
     interest_rate: req.body.interest_rate,
     length_of_loan: req.body.length_of_loan,
@@ -70,6 +71,21 @@ router.post("/", async (req, res) => {
     }
   } catch (err) {
     res.status(400).send("Empty Input");
+    return;
+  }
+
+  try {
+    // Check if lender_id matches a user in the DB.
+    // *** MAKE IT SO IT ENSURES THE USER IS A LENDER LATER.
+    const user = db.userModel.findById(newLoan.lender_id);
+
+    if (!user) {
+      throw new Error();
+    }
+
+    newLoan.lender_id = user._id;
+  } catch (err) {
+    res.status(400).send("Invalid User");
     return;
   }
 
