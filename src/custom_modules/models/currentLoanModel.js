@@ -12,7 +12,7 @@ const CurrentLoanSchema = new mongoose.Schema({
   payment_freq: { type: String, enum: PaymentFrequency, uppercase: true },
   min_credit_range: Number,
   max_credit_range: Number,
-  interest: Number,
+  interest_rate: Number,
   loan_status: { type: String, enum: LoanStatus, uppercase: true },
   interest_paid: Number,
   amount_remaining: Number,

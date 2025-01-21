@@ -12,7 +12,7 @@ const PastLoanSchema = new mongoose.Schema({
   payment_freq: { type: String, enum: PaymentFrequency, uppercase: true },
   min_credit_range: Number,
   max_credit_range: Number,
-  interest: Number,
+  interest_rate: Number,
   loan_closed_status: { type: String, enum: LoanClosedStatus, uppercase: true },
   loan_closure_info: String,
   total_interest_paid: Number,

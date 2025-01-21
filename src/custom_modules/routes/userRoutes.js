@@ -1,6 +1,7 @@
 const express = require("express");
 const db = require("../database/dbConnection.js");
 const router = express.Router();
+const { checkObjectId } = require("../../utils/checkObjectId.js");
 
 // DB Connection.
 db.mongoose.connect(db.uri);
@@ -21,7 +22,7 @@ router.get("/", async (req, res) => {
 });
 
 // -----------------------------------------------
-// *** FIND USER BY ID ***
+// *** GET USER BY ID ***
 // -----------------------------------------------
 router.get("/:id", async (req, res) => {
   const userId = req.params.id;
@@ -165,14 +166,5 @@ router.delete("/:id", async (req, res) => {
     res.status(400).send("Default Error");
   }
 });
-
-// -----------------------------------------------
-// *** HELPER FUNCTIONS ***
-// -----------------------------------------------
-const checkObjectId = (givenId) => {
-  if (!db.mongoose.isValidObjectId(givenId)) {
-    throw new Error();
-  }
-};
 
 module.exports = router;
