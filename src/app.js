@@ -3,7 +3,7 @@ const app = express();
 const port = 3000;
 
 app.use((req, res, next) => {
-  const origin = "";
+  const origin = "*";
   res.header("Access-Control-Allow-Origin", origin);
   res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE");
   res.header(
