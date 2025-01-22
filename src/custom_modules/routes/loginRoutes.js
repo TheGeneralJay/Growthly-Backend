@@ -32,17 +32,20 @@ router.post("/", async (req, res) => {
     return;
   }
 
-  // Test entered password against the one stored in DB.
+  // Test the entered plaintex password against the hashed version in the DB.
   try {
-    if (existingUser.password == dbResponse.password) {
-      res
-        .status(200)
-        .send(`Login successful. Welcome, ${dbResponse.first_name}!`);
-    } else {
+    const isMatch = await dbResponse.comparePassword(existingUser.password);
+
+    // If the passwords do not match, throw error.
+    if (!isMatch) {
       throw new Error();
     }
+
+    // If we get here, send the successful login message.
+    res.status(200).json(`Login successful, welcome ${dbResponse.first_name}!`);
   } catch (err) {
     res.status(400).send("Incorrect password error.");
+    return;
   }
 });
 
