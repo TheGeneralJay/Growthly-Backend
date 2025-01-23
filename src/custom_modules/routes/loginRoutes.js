@@ -1,6 +1,7 @@
 const express = require("express");
 const db = require("../database/dbConnection.js");
 const router = express.Router();
+const ERR = require("../../utils/enums/errorMessages.js");
 
 // DB Connection.
 db.mongoose.connect(db.uri);
@@ -28,11 +29,11 @@ router.post("/", async (req, res) => {
       throw new Error();
     }
   } catch (err) {
-    res.status(400).send("Email does not exist error.");
+    res.status(ERR.INVALID_EMAIL_ERROR.status).send(ERR.INVALID_EMAIL_ERROR);
     return;
   }
 
-  // Test the entered plaintex password against the hashed version in the DB.
+  // Test the entered plaintext password against the hashed version in the DB.
   try {
     const isMatch = await dbResponse.comparePassword(existingUser.password);
 
@@ -44,7 +45,9 @@ router.post("/", async (req, res) => {
     // If we get here, send the successful login message.
     res.status(200).json(`Login successful, welcome ${dbResponse.first_name}!`);
   } catch (err) {
-    res.status(400).send("Incorrect password error.");
+    res
+      .status(ERR.INCORRECT_PASSWORD_ERROR.status)
+      .send(ERR.INCORRECT_PASSWORD_ERROR);
     return;
   }
 });

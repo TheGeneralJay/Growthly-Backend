@@ -2,6 +2,7 @@ const express = require("express");
 const db = require("../database/dbConnection.js");
 const router = express.Router();
 const { checkObjectId } = require("../../utils/checkObjectId.js");
+const ERR = require("../../utils/enums/errorMessages.js");
 
 // DB Connection.
 db.mongoose.connect(db.uri);
@@ -17,7 +18,8 @@ router.get("/", async (req, res) => {
     // Return the loans.
     res.status(200).json(loanList);
   } catch (err) {
-    res.status(400).send("Default Error");
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
   }
 });
 
@@ -31,7 +33,7 @@ router.get("/:id", async (req, res) => {
   try {
     checkObjectId(loanId);
   } catch (err) {
-    res.status(400).send("ID Does Not Exist Error");
+    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
     return;
   }
 
@@ -43,7 +45,8 @@ router.get("/:id", async (req, res) => {
       res.status(200).json(loan);
     }
   } catch (err) {
-    res.status(400).send("Default Error");
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
   }
 });
 
@@ -70,7 +73,7 @@ router.post("/", async (req, res) => {
       throw new Error();
     }
   } catch (err) {
-    res.status(400).send("Empty Input");
+    res.status(ERR.EMPTY_INPUT_ERROR.status).send(ERR.EMPTY_INPUT_ERROR);
     return;
   }
 
@@ -85,7 +88,7 @@ router.post("/", async (req, res) => {
       }
     }
   } catch (err) {
-    res.status(400).send("Invalid User");
+    res.status(ERR.INVALID_USER_ERROR.status).send(ERR.INVALID_USER_ERROR);
     return;
   }
 
@@ -97,7 +100,8 @@ router.post("/", async (req, res) => {
     await loan.save();
     res.status(201).json({ message: "Loan successfully posted." });
   } catch (err) {
-    res.status(400).send("Default Error");
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
   }
 });
 
@@ -111,7 +115,7 @@ router.put("/:id", async (req, res) => {
   try {
     checkObjectId(loanId);
   } catch (err) {
-    res.status(400).send("ID Does Not Exist Error");
+    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
     return;
   }
 
@@ -138,7 +142,8 @@ router.put("/:id", async (req, res) => {
       res.status(200).send("Loan Successfully Updated.");
     }
   } catch (err) {
-    res.status(400).send("Default Error");
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
   }
 });
 
@@ -152,7 +157,7 @@ router.delete("/:id", async (req, res) => {
   try {
     checkObjectId(loanId);
   } catch (err) {
-    res.status(400).send("ID Does Not Exist Error");
+    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
     return;
   }
 
@@ -166,7 +171,8 @@ router.delete("/:id", async (req, res) => {
       res.status(200).send("Loan Successfully Deleted.");
     }
   } catch (err) {
-    res.status(400).send("Default Error");
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
   }
 });
 
