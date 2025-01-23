@@ -1,5 +1,10 @@
 # Growthly Backend
 
+## Startup Procedure:
+1. Clone the `Growthly-Backend` repository.
+2. Open your terminal to the local repository.
+3. Enter `npm install`.
+
 ## TODO:
 
 - [x] Basic user CRUD implementation.
