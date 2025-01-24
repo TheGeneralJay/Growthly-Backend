@@ -19,16 +19,19 @@ app.use(express.json());
 const userPath = "/api/v1/users";
 const loginPath = "/api/v1/login";
 const lenderLoanPath = "/api/v1/lender/loan";
+const borrowerLoanPath = "/api/v1/borrower/loan";
 
 // Routes.
 const userRoutes = require("./custom_modules/routes/userRoutes.js");
 const loginRoutes = require("./custom_modules/routes/loginRoutes.js");
 const lenderLoanRoutes = require("./custom_modules/routes/lenderLoanRoutes.js");
+const borrowerLoanRoutes = require("./custom_modules/routes/currentLoanRoutes.js");
 
 // Application.
 app.use(userPath, userRoutes);
 app.use(loginPath, loginRoutes);
 app.use(lenderLoanPath, lenderLoanRoutes);
+app.use(borrowerLoanPath, borrowerLoanRoutes);
 
 app.listen(port, () => {
   console.log(`App listening at port ${port}.`);
