@@ -27,4 +27,6 @@
   - [x] Connect a user object ID to the loans.
 - [x] Add custom error messages into its own file.
 - [ ] Place the try/catch "check for valid ID" block into a function if possible.
+- [ ] Fix app hanging when you try to delete something with a valid object ID (i.e. something you've already deleted once and try to delete again).
+- [ ] Apply calculations automatically for amount_remaining values in currentLoans.
 - [ ] CONTINUOUS: Clean up any messy implementations.

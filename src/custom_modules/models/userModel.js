@@ -18,7 +18,7 @@ const UserSchema = new mongoose.Schema({
   payment_id: String,
   past_loans: { type: mongoose.Schema.Types.ObjectId, ref: "PastLoan" },
   current_loans: { type: mongoose.Schema.Types.ObjectId, ref: "CurrentLoan" },
-  last_credit_score: Number,
+  last_credit_score: { type: mongoose.Schema.Types.Double },
   user_banned: Boolean,
   user_banned_until: Date,
 });

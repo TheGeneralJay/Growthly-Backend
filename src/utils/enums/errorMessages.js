@@ -1,7 +1,7 @@
 const ErrorMessages = Object.freeze({
   INVALID_ID_ERROR: {
     status: 404,
-    message: "ERROR: Invalid user ID.",
+    message: "ERROR: Invalid ID.",
   },
 
   EMPTY_INPUT_ERROR: {
@@ -22,6 +22,11 @@ const ErrorMessages = Object.freeze({
   INVALID_USER_ERROR: {
     status: 404,
     message: "ERROR: Account with the given ID does not exist.",
+  },
+
+  INVALID_LOAN_ERROR: {
+    status: 404,
+    message: "ERROR: Loan with the given ID does not exist.",
   },
 
   // Default fallback error.
