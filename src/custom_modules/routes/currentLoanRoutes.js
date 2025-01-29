@@ -129,6 +129,9 @@ router.put("/:id", async (req, res) => {
 
       // Loop through keys.
       changeKeys.forEach((key) => {
+        if (currentLoan[key]) {
+          currentLoan[key] = requestedChanges[key];
+        }
         // If the key matches the one in the schema, update it.
         if (currentLoan[key]) {
           currentLoan[key] = requestedChanges[key];
@@ -156,6 +159,7 @@ router.delete("/:id", async (req, res) => {
     checkObjectId(currentLoanId);
   } catch (err) {
     res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
+    return;
   }
 
   // If we get here, find the loan and delete it if it exists.
@@ -172,5 +176,73 @@ router.delete("/:id", async (req, res) => {
     return;
   }
 });
+
+// -----------------------------------------------
+// *** UPDATE AMOUNTS ON LOAN ***
+// -----------------------------------------------
+
+router.put("/payment/:id", async (req, res) => {
+  const currentLoanId = req.params.id;
+
+  // Check for valid ID.
+  try {
+    checkObjectId(currentLoanId);
+  } catch (err) {
+    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
+    return;
+  }
+
+  // Find the loan and attempt to apply the payment if it exists.
+  try {
+    const currentLoan = await db.currentLoanModel.findById(currentLoanId);
+
+    if (!currentLoan) {
+      throw new Error();
+    }
+
+    const payment = req.body.amount_paid;
+
+    // Check if the amount_remaining will be valid before attempting to make any true changes.
+    try {
+      let updatedAmountRemaining = updateAmountRemaining(currentLoan, payment);
+
+      // If the updated amount remaining is greater than / equal to 0, we can proceed with the changes.
+      if (updatedAmountRemaining >= 0) {
+        currentLoan.amount_remaining = updatedAmountRemaining;
+        currentLoan.amount_paid += payment;
+
+        await currentLoan.save();
+        res
+          .status(200)
+          .send(
+            `Payment amount of ${payment} applied to loan #${currentLoanId}.`
+          );
+        return;
+      } else {
+        // If we get here, it means the updateAmountRemaining exceeds the total amount owed.
+        throw new Error();
+      }
+    } catch (err) {
+      res.status(ERR.INVALID_AMT_ERROR.status).send(ERR.INVALID_AMT_ERROR);
+      return;
+    }
+  } catch (err) {
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
+  }
+});
+
+// -----------------------------------------------
+// *** HELPER FUNCTIONS ***
+// -----------------------------------------------
+const updateAmountRemaining = (currentLoan, payment) => {
+  if (currentLoan.amount_remaining > 0) {
+    let newAmountRemaining = currentLoan.amount_remaining - payment;
+
+    return newAmountRemaining;
+  } else {
+    throw new Error();
+  }
+};
 
 module.exports = router;

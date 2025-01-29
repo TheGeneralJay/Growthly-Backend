@@ -29,6 +29,11 @@ const ErrorMessages = Object.freeze({
     message: "ERROR: Loan with the given ID does not exist.",
   },
 
+  INVALID_AMT_ERROR: {
+    status: 400,
+    message: "ERROR: Payment amount exceeds total.",
+  },
+
   // Default fallback error.
   DEFAULT_ERROR: {
     status: 400,
