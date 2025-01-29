@@ -5,6 +5,7 @@
 1. Clone the `Growthly-Backend` repository.
 2. Open your terminal to the local repository.
 3. Enter `npm install`.
+4. Enter `npm start` to start the app.
 
 ## TODO:
 
