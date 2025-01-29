@@ -24,6 +24,12 @@ const ErrorMessages = Object.freeze({
     message: "ERROR: Account with the given ID does not exist.",
   },
 
+  INVALID_USER_TYPE_ERROR: {
+    status: 400,
+    message:
+      "ERROR: User type must be either LENDER, BORROWER, or ADMINISTRATOR.",
+  },
+
   INVALID_LOAN_ERROR: {
     status: 404,
     message: "ERROR: Loan with the given ID does not exist.",

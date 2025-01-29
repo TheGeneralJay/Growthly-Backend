@@ -3,6 +3,7 @@ const db = require("../database/dbConnection.js");
 const router = express.Router();
 const { checkObjectId } = require("../../utils/checkObjectId.js");
 const ERR = require("../../utils/enums/errorMessages.js");
+const UserTypes = require("../../utils/enums/userTypes.js");
 
 // DB Connection.
 db.mongoose.connect(db.uri);
@@ -91,6 +92,16 @@ router.post("/register", async (req, res) => {
     return;
   }
 
+  // Ensure the user type is valid.
+  try {
+    isValidUserType(user_type);
+  } catch (err) {
+    res
+      .status(ERR.INVALID_USER_TYPE_ERROR.status)
+      .send(ERR.INVALID_USER_TYPE_ERROR);
+    return;
+  }
+
   // If we make it here, try to make the new user.
   try {
     const user = new db.userModel(req.body);
@@ -172,5 +183,16 @@ router.delete("/:id", async (req, res) => {
     return;
   }
 });
+
+// -----------------------------------------------
+// *** HELPER FUNCTIONS ***
+// -----------------------------------------------
+const isValidUserType = (type) => {
+  if (type.toUpperCase() in UserTypes) {
+    return;
+  } else {
+    throw new Error();
+  }
+};
 
 module.exports = router;
