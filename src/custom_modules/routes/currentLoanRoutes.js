@@ -202,6 +202,11 @@ router.put("/payment/:id", async (req, res) => {
 
     const payment = req.body.amount_paid;
 
+    // Send to default error if the body sent undefined.
+    if (payment == undefined) {
+      throw new Error();
+    }
+
     // Check if the amount_remaining will be valid before attempting to make any true changes.
     try {
       let updatedAmountRemaining = updateAmountRemaining(currentLoan, payment);
