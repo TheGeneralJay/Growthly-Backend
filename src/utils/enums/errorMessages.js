@@ -35,6 +35,11 @@ const ErrorMessages = Object.freeze({
     message: "ERROR: Loan with the given ID does not exist.",
   },
 
+  LOAN_UNAVAILABLE_ERROR: {
+    status: 404,
+    message: "ERROR: Loan is unavailable.",
+  },
+
   INVALID_AMT_ERROR: {
     status: 400,
     message: "ERROR: Payment amount exceeds total.",

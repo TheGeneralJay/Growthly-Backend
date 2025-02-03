@@ -31,4 +31,5 @@
 - [ ] Fix app hanging when you try to delete something with a valid object ID (i.e. something you've already deleted once and try to delete again).
 - [ ] Apply interest calculations automatically where necessary.
 - [x] Apply calculations automatically for amount_remaining values in currentLoans.
+- [ ] Error handle changeAvailability export.
 - [ ] CONTINUOUS: Clean up any messy implementations.

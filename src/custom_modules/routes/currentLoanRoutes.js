@@ -4,6 +4,7 @@ const router = express.Router();
 const { checkObjectId } = require("../../utils/checkObjectId.js");
 const ERR = require("../../utils/enums/errorMessages.js");
 const LoanStatus = require("../../utils/enums/loanStatus.js");
+const { changeAvailability } = require("../../utils/changeAvailability.js");
 
 // DB Connection.
 db.mongoose.connect(db.uri);
@@ -78,25 +79,35 @@ router.post("/", async (req, res) => {
   try {
     const loanObj = await db.loanBoardModel.findById(newCurrentLoan.loan_id);
 
-    const currentLoanObj = {
-      loan_id: newCurrentLoan.loan_id,
-      borrower_id: newCurrentLoan.borrower_id,
-      amount: loanObj.amount,
-      amount_paid: 0,
-      amount_remaining: loanObj.amount,
-      interest_rate: loanObj.interest_rate,
-      interest_paid: 0,
-      length_of_loan: loanObj.length_of_loan,
-      length_remaining: loanObj.length_of_loan,
-      payment_freq: newCurrentLoan.payment_freq,
-      loan_status: LoanStatus.GOOD,
-    };
+    // If the loan is unavailable, don't allow user to claim it.
+    if (loanObj.available) {
+      const currentLoanObj = {
+        loan_id: newCurrentLoan.loan_id,
+        borrower_id: newCurrentLoan.borrower_id,
+        amount: loanObj.amount,
+        amount_paid: 0,
+        amount_remaining: loanObj.amount,
+        interest_rate: loanObj.interest_rate,
+        interest_paid: 0,
+        length_of_loan: loanObj.length_of_loan,
+        length_remaining: loanObj.length_of_loan,
+        payment_freq: newCurrentLoan.payment_freq,
+        loan_status: LoanStatus.GOOD,
+      };
 
-    // Save and send confirmation.
-    const loan = new db.currentLoanModel(currentLoanObj);
-    await loan.save();
+      // Save and send confirmation.
+      const loan = new db.currentLoanModel(currentLoanObj);
+      await loan.save();
 
-    res.status(201).send("Current Loan successfully saved.");
+      // If this all succeeds, set the loan to unavailable.
+      changeAvailability(loanObj, false);
+
+      res.status(201).send("Current Loan successfully saved.");
+    } else {
+      res
+        .status(ERR.LOAN_UNAVAILABLE_ERROR.status)
+        .send(ERR.LOAN_UNAVAILABLE_ERROR);
+    }
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
     return;
