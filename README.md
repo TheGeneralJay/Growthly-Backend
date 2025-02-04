@@ -32,8 +32,13 @@
 
 ## TODO [FIXES]:
 
-- [ ] Change schema to force input as required instead.
+- [x] Change schema to force input as required instead.
+  - [x] User.
+  - [x] LoanBoard.
+  - [x] CurrentLoan.
+  - [x] PastLoan.
 - [ ] Place the try/catch "check for valid ID" block into a function if possible.
+- [ ] Validate if user is a lender when trying to post a loan.
 - [ ] Fix app hanging when you try to delete something with a valid object ID (i.e. something you've already deleted once and try to delete again).
 - [ ] Error handle changeAvailability export.
 - [ ] Place update logic into its own helper function.

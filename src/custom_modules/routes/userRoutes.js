@@ -56,41 +56,7 @@ router.get("/:id", async (req, res) => {
 // -----------------------------------------------
 router.post("/register", async (req, res) => {
   // Grab request body.
-  let {
-    first_name,
-    last_name,
-    phone_number,
-    email,
-    password,
-    street_address,
-    province,
-    postal_code,
-    username,
-    user_type,
-    sin_number,
-  } = req.body;
-
-  try {
-    // If any parameters are empty, throw error.
-    if (
-      first_name == undefined ||
-      last_name == undefined ||
-      phone_number == undefined ||
-      email == undefined ||
-      password == undefined ||
-      street_address == undefined ||
-      province == undefined ||
-      postal_code == undefined ||
-      username == undefined ||
-      user_type == undefined ||
-      sin_number == undefined
-    ) {
-      throw new Error();
-    }
-  } catch (err) {
-    res.status(ERR.EMPTY_INPUT_ERROR.status).send(ERR.EMPTY_INPUT_ERROR);
-    return;
-  }
+  let user_type = req.body.user_type;
 
   // Ensure the user type is valid.
   try {
