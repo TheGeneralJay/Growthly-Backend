@@ -13,24 +13,26 @@
 - [x] Basic login implementation.
 - [x] Add enums for LENDER / BORROWER.
   - [x] Add error message for invalid input on user type.
-- [ ] Refactor address into object.
 - [x] Refactor past loans into its own schema.
-  - [ ] Add necessary CRUD implementation for past loans.
+  - [x] Add necessary CRUD implementation for past loans.
   - [x] Add enums for loan_closed_status (COMPLETE, CANCELLED).
 - [x] Refactor current loans into its own schema.
-  - [ ] Add necessary CRUD implementation for current loans.
-  - [x] Add enums for loan_measure (WEEKS, YEARS, MONTHS).
+  - [x] Add necessary CRUD implementation for current loans.
   - [x] Add enums for payment_freq (MONTHLY, WEEKLY).
   - [x] Add enums for loan_status (GOOD, MISSED_PAYMENT).
 - [x] Add loanBoard schema.
   - [x] Add necessary CRUD implementation.
-  - [ ] Connect loans to current/past loans by ID.
+  - [x] Connect loans to current/past loans by ID.
   - [x] Connect a user object ID to the loans.
 - [x] Add custom error messages into its own file.
+- [x] Apply calculations automatically for amount_remaining values in currentLoans.
+- [ ] Refactor address into object.
+- [ ] Apply interest calculations automatically where necessary.
+- [ ] CONTINUOUS: Clean up any messy implementations.
+
+## TODO [FIXES]:
+
 - [ ] Place the try/catch "check for valid ID" block into a function if possible.
 - [ ] Fix app hanging when you try to delete something with a valid object ID (i.e. something you've already deleted once and try to delete again).
-- [ ] Apply interest calculations automatically where necessary.
-- [x] Apply calculations automatically for amount_remaining values in currentLoans.
 - [ ] Error handle changeAvailability export.
 - [ ] Place update logic into its own helper function.
-- [ ] CONTINUOUS: Clean up any messy implementations.
