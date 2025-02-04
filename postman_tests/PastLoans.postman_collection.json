@@ -1,0 +1,64 @@
+{
+	"info": {
+		"_postman_id": "24a10e4f-3504-4541-8fed-85f536d73ef6",
+		"name": "PastLoans",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "38217151"
+	},
+	"item": [
+		{
+			"name": "Get All PastLoans",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:3000/api/v1/loans/past"
+			},
+			"response": []
+		},
+		{
+			"name": "Create PastLoan",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"current_loan_id\": \"67a21b6d2baadf752edfe63b\",\r\n    \"loan_closed_status\": \"COMPLETE\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/loans/past"
+			},
+			"response": []
+		},
+		{
+			"name": "Update PastLoan",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"loan_status_details\": \"Paid and completed.\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/loans/past/67a2257013e3e162636b53b5"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete PastLoan",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "http://localhost:3000/api/v1/loans/past/67a2316a68d36057c7bd08f9"
+			},
+			"response": []
+		}
+	]
+}

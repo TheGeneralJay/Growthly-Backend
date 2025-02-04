@@ -1,0 +1,73 @@
+{
+	"info": {
+		"_postman_id": "ea7950c1-6468-4841-9a70-00afd59a9b24",
+		"name": "LoanBoard",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "38217151"
+	},
+	"item": [
+		{
+			"name": "Get All Loans",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:3000/api/v1/lender/loan"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Loan By ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:3000/api/v1/lender/loan/678fce21b50c7c72bb558c86"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Loan",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"lender_id\": \"6791334aad19192b7eee9d2d\",\r\n    \"amount\": 5000,\r\n    \"interest_rate\": 0.12,\r\n    \"length_of_loan\": 3\r\n}\r\n\r\n// Test for required input. Should error.\r\n\r\n// {\r\n//     \"lender_id\": \"6791334aad19192b7eee9d2d\",\r\n//     \"length_of_loan\": 3\r\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/lender/loan"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Loan",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"interest_rate\": 0.11,\r\n    \"length_of_loan\": 12,\r\n    \"available\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/lender/loan/678fd657750dd1b150dd13be"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Loan",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "http://localhost:3000/api/v1/lender/loan/67a22fc72030ac9f40b4dc79"
+			},
+			"response": []
+		}
+	]
+}

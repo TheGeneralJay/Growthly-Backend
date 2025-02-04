@@ -1,0 +1,82 @@
+{
+	"info": {
+		"_postman_id": "86031b49-d8a7-40fb-aa03-df54ca68db2b",
+		"name": "CurrentLoans",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "38217151"
+	},
+	"item": [
+		{
+			"name": "Get All CurrentLoans",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "http://localhost:3000/api/v1/borrower/loan"
+			},
+			"response": []
+		},
+		{
+			"name": "Create CurrentLoan",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"loan_id\": \"67a230f24156b10025c4b225\",\r\n    \"borrower_id\": \"6791334aad19192b7eee9d2d\",\r\n    \"payment_freq\": \"MONTHLY\"\r\n}\r\n\r\n// {\r\n//     \"loan_id\": \"doesntexist\",\r\n//     \"borrower_id\": \"678a4ffb94d6ef25ab7a78d2\",\r\n//     \"payment_freq\": \"MONTHLY\"\r\n// }\r\n\r\n// {\r\n//     \"loan_id\": \"678fd657750dd1b150dd13be\",\r\n//     \"borrower_id\": \"doesntexist\",\r\n//     \"payment_freq\": \"MONTHLY\"\r\n// }\r\n\r\n// {\r\n//     \"loan_id\": \"678fd657750dd1b150dd13be\",\r\n//     \"borrower_id\": \"678a4ffb94d6ef25ab7a78d2\",\r\n//     \"payment_freq\": \"invalidfreq\"\r\n// }\r\n\r\n// Test for required input. Should error.\r\n\r\n// {\r\n//     \"loan_id\": \"678fd657750dd1b150dd13be\"\r\n// }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/borrower/loan"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Loan",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"interest_rate\": 0.15\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/borrower/loan/679a673917aa887f19cd9f6a"
+			},
+			"response": []
+		},
+		{
+			"name": "Update Loan Payment",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"amount_paid\": 5000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/borrower/loan/payment/67a21b6d2baadf752edfe63b"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete CurrentLoan",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": "http://localhost:3000/api/v1/borrower/loan/67a231074156b10025c4b229"
+			},
+			"response": []
+		}
+	]
+}

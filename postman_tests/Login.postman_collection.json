@@ -1,0 +1,46 @@
+{
+	"info": {
+		"_postman_id": "4848506d-d962-4324-bf93-f32a6da76db0",
+		"name": "Login",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "38217151"
+	},
+	"item": [
+		{
+			"name": "Username Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email_or_username\": \"test@test.com\",\r\n    \"password\": \"test\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/login"
+			},
+			"response": []
+		},
+		{
+			"name": "Email Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email_or_username\": \"taylorM@domain.ca\",\r\n    \"password\": \"CoolerPassword123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/api/v1/login"
+			},
+			"response": []
+		}
+	]
+}
