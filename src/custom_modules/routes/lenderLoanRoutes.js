@@ -55,27 +55,13 @@ router.get("/:id", async (req, res) => {
 // -----------------------------------------------
 router.post("/", async (req, res) => {
   // Grab request body.
-  let newLoan = {
+  const newLoan = {
     lender_id: req.body.lender_id,
     amount: req.body.amount,
     interest_rate: req.body.interest_rate,
     length_of_loan: req.body.length_of_loan,
     available: true, // Make loan available upon creation for borrowers to claim.
   };
-
-  try {
-    // If parameters empty, throw error.
-    if (
-      newLoan.amount == undefined ||
-      newLoan.interest_rate == undefined ||
-      newLoan.length_of_loan == undefined
-    ) {
-      throw new Error();
-    }
-  } catch (err) {
-    res.status(ERR.EMPTY_INPUT_ERROR.status).send(ERR.EMPTY_INPUT_ERROR);
-    return;
-  }
 
   try {
     // Check if lender_id matches a user in the DB.

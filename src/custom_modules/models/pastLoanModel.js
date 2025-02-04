@@ -3,7 +3,11 @@ const LoanClosedStatus = require("../../utils/enums/loanClosedStatus");
 const PaymentFrequency = require("../../utils/enums/paymentFrequency");
 
 const PastLoanSchema = new mongoose.Schema({
-  current_loan_id: { type: mongoose.Schema.Types.ObjectId, ref: "CurrentLoan" },
+  current_loan_id: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "CurrentLoan",
+    required: true,
+  },
   loan_board_id: { type: mongoose.Schema.Types.ObjectId, ref: "Loan" },
   lender_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   borrower_id: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
@@ -13,8 +17,13 @@ const PastLoanSchema = new mongoose.Schema({
   interest_rate: { type: mongoose.Schema.Types.Double },
   loan_total: { type: mongoose.Schema.Types.Double },
   total_interest_paid: { type: mongoose.Schema.Types.Double },
-  loan_closed_status: { type: String, enum: LoanClosedStatus, uppercase: true },
-  loan_status_details: String,
+  loan_closed_status: {
+    type: String,
+    enum: LoanClosedStatus,
+    uppercase: true,
+    required: true,
+  },
+  loan_status_details: { type: String, default: "No Comment." },
 });
 
 const PastLoan = mongoose.model("PastLoan", PastLoanSchema);

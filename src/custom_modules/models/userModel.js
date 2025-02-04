@@ -3,17 +3,17 @@ const UserTypes = require("../../utils/enums/userTypes.js");
 const bcrypt = require("bcrypt");
 
 const UserSchema = new mongoose.Schema({
-  first_name: String,
-  last_name: String,
-  email: String,
-  password: String,
-  street_address: String, // Maybe make it's own object for address, province, postal.
-  province: String, // Maybe make it's own object for address, province, postal.
-  postal_code: String, // Maybe make it's own object for address, province, postal.
-  phone_number: String,
-  username: String,
+  first_name: { type: String, required: true },
+  last_name: { type: String, required: true },
+  email: { type: String, required: true },
+  password: { type: String, required: true },
+  street_address: { type: String, required: true }, // Maybe make it's own object for address, province, postal.
+  province: { type: String, required: true }, // Maybe make it's own object for address, province, postal.
+  postal_code: { type: String, required: true }, // Maybe make it's own object for address, province, postal.
+  phone_number: { type: String, required: true },
+  username: { type: String, required: true },
   user_type: { type: String, enum: UserTypes, uppercase: true },
-  sin_number: String, // To have it's own DB.
+  sin_number: { type: String, required: true }, // To have it's own DB.
   email_verified: Boolean,
   payment_id: String,
   past_loans: { type: mongoose.Schema.Types.ObjectId, ref: "PastLoan" },

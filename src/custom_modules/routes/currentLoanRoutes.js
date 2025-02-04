@@ -36,20 +36,6 @@ router.post("/", async (req, res) => {
   };
 
   try {
-    // If parameters are empty, throw an error.
-    if (
-      newCurrentLoan.loan_id == undefined ||
-      newCurrentLoan.borrower_id == undefined ||
-      newCurrentLoan.payment_freq == undefined
-    ) {
-      throw new Error();
-    }
-  } catch (err) {
-    res.status(ERR.EMPTY_INPUT_ERROR.status).send(ERR.EMPTY_INPUT_ERROR);
-    return;
-  }
-
-  try {
     // Check if borrower_id matches a user in the DB.
     if (checkObjectId(newCurrentLoan.borrower_id)) {
       const user = db.userModel.findById(newCurrentLoan.borrower_id);
