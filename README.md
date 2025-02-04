@@ -32,4 +32,5 @@
 - [ ] Apply interest calculations automatically where necessary.
 - [x] Apply calculations automatically for amount_remaining values in currentLoans.
 - [ ] Error handle changeAvailability export.
+- [ ] Place update logic into its own helper function.
 - [ ] CONTINUOUS: Clean up any messy implementations.

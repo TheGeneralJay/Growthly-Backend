@@ -19,7 +19,9 @@ router.get("/", async (req, res) => {
 
     // Return the loans.
     res.status(200).json(loanList);
-  } catch (err) {}
+  } catch (err) {
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+  }
 });
 
 // -----------------------------------------------
@@ -27,7 +29,7 @@ router.get("/", async (req, res) => {
 // -----------------------------------------------
 router.post("/", async (req, res) => {
   // Grab request body.
-  let newCurrentLoan = {
+  const newCurrentLoan = {
     loan_id: req.body.loan_id,
     borrower_id: req.body.borrower_id,
     payment_freq: req.body.payment_freq,
@@ -102,7 +104,7 @@ router.post("/", async (req, res) => {
       // If this all succeeds, set the loan to unavailable.
       changeAvailability(loanObj, false);
 
-      res.status(201).send("Current Loan successfully saved.");
+      res.status(201).send("Current loan successfully saved.");
     } else {
       res
         .status(ERR.LOAN_UNAVAILABLE_ERROR.status)
@@ -140,9 +142,6 @@ router.put("/:id", async (req, res) => {
 
       // Loop through keys.
       changeKeys.forEach((key) => {
-        if (currentLoan[key]) {
-          currentLoan[key] = requestedChanges[key];
-        }
         // If the key matches the one in the schema, update it.
         if (currentLoan[key]) {
           currentLoan[key] = requestedChanges[key];

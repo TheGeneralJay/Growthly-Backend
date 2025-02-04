@@ -6,6 +6,8 @@ db.mongoose.connect(db.uri);
 const checkObjectId = (givenId) => {
   if (!db.mongoose.isValidObjectId(givenId)) {
     throw new Error();
+  } else {
+    return true;
   }
 };
 

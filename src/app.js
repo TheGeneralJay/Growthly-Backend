@@ -20,18 +20,21 @@ const userPath = "/api/v1/users";
 const loginPath = "/api/v1/login";
 const lenderLoanPath = "/api/v1/lender/loan";
 const borrowerLoanPath = "/api/v1/borrower/loan";
+const pastLoanPath = "/api/v1/loans/past";
 
 // Routes.
 const userRoutes = require("./custom_modules/routes/userRoutes.js");
 const loginRoutes = require("./custom_modules/routes/loginRoutes.js");
 const lenderLoanRoutes = require("./custom_modules/routes/lenderLoanRoutes.js");
 const borrowerLoanRoutes = require("./custom_modules/routes/currentLoanRoutes.js");
+const pastLoanRoutes = require("./custom_modules/routes/pastLoanRoutes.js");
 
 // Application.
 app.use(userPath, userRoutes);
 app.use(loginPath, loginRoutes);
 app.use(lenderLoanPath, lenderLoanRoutes);
 app.use(borrowerLoanPath, borrowerLoanRoutes);
+app.use(pastLoanPath, pastLoanRoutes);
 
 app.listen(port, () => {
   console.log(`App listening at port ${port}.`);
