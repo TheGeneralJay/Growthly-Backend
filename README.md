@@ -32,6 +32,7 @@
 
 ## TODO [FIXES]:
 
+- [ ] Change schema to force input as required instead.
 - [ ] Place the try/catch "check for valid ID" block into a function if possible.
 - [ ] Fix app hanging when you try to delete something with a valid object ID (i.e. something you've already deleted once and try to delete again).
 - [ ] Error handle changeAvailability export.
