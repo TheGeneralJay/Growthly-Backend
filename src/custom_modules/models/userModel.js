@@ -37,9 +37,9 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Compare hashed password vs plaintext password.
-UserSchema.methods.comparePassword = async function comparePassword(pass) {
-  return bcrypt.compare(pass, this.password);
-};
+// UserSchema.methods.comparePassword = async function comparePassword(pass) {
+//   return bcrypt.compare(pass, this.password);
+// };
 
 const User = mongoose.model("User", UserSchema);
 module.exports = User;

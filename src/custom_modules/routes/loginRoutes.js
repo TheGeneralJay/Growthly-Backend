@@ -13,19 +13,18 @@ router.post("/", async (req, res) => {
   const existingUser = req.body;
 
   // Find the user by email or by username.
-  let dbUser = await db.userModel.findOne({
-    email: existingUser.email_or_username,
+  const dbUser = await db.userModel.findOne({
+    $or: [
+      { email: existingUser.email_or_username },
+      { username: existingUser.email_or_username },
+    ],
   });
 
-  if (!dbUser) {
-    dbUser = await db.userModel.findOne({
-      username: existingUser.email_or_username,
-    });
-  }
+  console.log(dbUser);
 
   // If no matching user exists, notify the user.
   try {
-    if (!dbUser) {
+    if (dbUser === null) {
       throw new Error();
     }
   } catch (err) {
@@ -35,10 +34,14 @@ router.post("/", async (req, res) => {
 
   // Test the entered plaintext password against the hashed version in the DB.
   try {
-    const isMatch = await dbUser.comparePassword(existingUser.password);
+    // const isMatch = await dbUser.comparePassword(existingUser.password);
 
-    // If the passwords do not match, throw error.
-    if (!isMatch) {
+    // // If the passwords do not match, throw error.
+    // if (!isMatch) {
+    //   throw new Error();
+    // }
+
+    if (dbUser.password !== existingUser.password) {
       throw new Error();
     }
 
