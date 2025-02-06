@@ -151,6 +151,99 @@ router.delete("/:id", async (req, res) => {
 });
 
 // -----------------------------------------------
+// *** ADD LOAN TO USER ***
+// -----------------------------------------------
+router.put("/:id/postedLoan/:loanId", async (req, res) => {
+  const userId = req.params.id;
+  const loanId = req.params.loanId;
+
+  // Check if IDs are valid.
+  try {
+    checkObjectId(userId);
+    checkObjectId(loanId);
+  } catch (err) {
+    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
+    return;
+  }
+
+  // If we get here, try to update.
+  try {
+    const addLoan = await db.userModel.findByIdAndUpdate(userId, {
+      $push: { posted_loans: loanId },
+    });
+
+    await addLoan.save();
+
+    res.status(200).send("Loan successfully added to user.");
+  } catch (err) {
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
+  }
+});
+
+// -----------------------------------------------
+// *** ADD CURRENT LOAN TO USER ***
+// -----------------------------------------------
+router.put("/:id/currentLoan/:loanId", async (req, res) => {
+  const userId = req.params.id;
+  const loanId = req.params.loanId;
+
+  // Check if IDs are valid.
+  try {
+    checkObjectId(userId);
+    checkObjectId(loanId);
+  } catch (err) {
+    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
+    return;
+  }
+
+  // If we get here, try to update.
+  try {
+    const addLoan = await db.userModel.findByIdAndUpdate(userId, {
+      $push: { current_loans: loanId },
+    });
+
+    await addLoan.save();
+
+    res.status(200).send("Loan successfully added to user.");
+  } catch (err) {
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
+  }
+});
+
+// -----------------------------------------------
+// *** ADD PAST LOAN TO USER ***
+// -----------------------------------------------
+router.put("/:id/pastLoan/:loanId", async (req, res) => {
+  const userId = req.params.id;
+  const loanId = req.params.loanId;
+
+  // Check if IDs are valid.
+  try {
+    checkObjectId(userId);
+    checkObjectId(loanId);
+  } catch (err) {
+    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
+    return;
+  }
+
+  // If we get here, try to update.
+  try {
+    const addLoan = await db.userModel.findByIdAndUpdate(userId, {
+      $push: { past_loans: loanId },
+    });
+
+    await addLoan.save();
+
+    res.status(200).send("Loan successfully added to user.");
+  } catch (err) {
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
+  }
+});
+
+// -----------------------------------------------
 // *** HELPER FUNCTIONS ***
 // -----------------------------------------------
 const isValidUserType = (type) => {

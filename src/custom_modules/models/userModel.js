@@ -16,8 +16,21 @@ const UserSchema = new mongoose.Schema({
   sin_number: { type: String, required: true }, // To have it's own DB.
   email_verified: Boolean,
   payment_id: String,
-  past_loans: { type: mongoose.Schema.Types.ObjectId, ref: "PastLoan" },
-  current_loans: { type: mongoose.Schema.Types.ObjectId, ref: "CurrentLoan" },
+  past_loans: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "PastLoan",
+    default: [],
+  },
+  current_loans: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "CurrentLoan",
+    default: [],
+  },
+  posted_loans: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "Loan",
+    default: [],
+  },
   last_credit_score: { type: mongoose.Schema.Types.Double },
   user_banned: Boolean,
   user_banned_until: Date,
