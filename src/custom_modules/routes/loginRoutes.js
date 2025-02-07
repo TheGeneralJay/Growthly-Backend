@@ -7,20 +7,17 @@ const ERR = require("../../utils/enums/errorMessages.js");
 db.mongoose.connect(db.uri);
 
 // -----------------------------------------------
-// *** LOGIN ***
+// *** SEND BACK STORED HASH PASSWORD ***
 // -----------------------------------------------
 router.post("/", async (req, res) => {
   const existingUser = req.body;
 
-  // Find the user by email or by username.
   const dbUser = await db.userModel.findOne({
     $or: [
       { email: existingUser.email_or_username },
       { username: existingUser.email_or_username },
     ],
   });
-
-  console.log(dbUser);
 
   // If no matching user exists, notify the user.
   try {
@@ -32,25 +29,45 @@ router.post("/", async (req, res) => {
     return;
   }
 
-  // Test the entered plaintext password against the hashed version in the DB.
+  // Return the dbUser password hash.
+  res.status(200).send({ stored_password: dbUser.password });
+});
+
+// -----------------------------------------------
+// *** ALLOW LOGIN ***
+// -----------------------------------------------
+router.post("/auth", async (req, res) => {
+  const userAuth = req.body;
+
+  // If request sent without validated login, deny access.
   try {
-    // const isMatch = await dbUser.comparePassword(existingUser.password);
+    if (!userAuth.login_validated) {
+      throw new Error();
+    }
+  } catch (err) {
+    res
+      .status(ERR.USER_UNAUTHORIZED_ERROR.status)
+      .send(ERR.USER_UNAUTHORIZED_ERROR);
+    return;
+  }
 
-    // // If the passwords do not match, throw error.
-    // if (!isMatch) {
-    //   throw new Error();
-    // }
+  // If we make it here, find the user and send the response.
+  try {
+    const dbUser = await db.userModel.findOne({
+      $or: [
+        { email: userAuth.email_or_username },
+        { username: userAuth.email_or_username },
+      ],
+    });
 
-    if (dbUser.password !== existingUser.password) {
+    // If for whatever reason the user is null, error out.
+    if (dbUser === null) {
       throw new Error();
     }
 
-    // If we get here, send the user that logged in.
-    res.status(200).json(dbUser);
+    res.status(200).send(dbUser);
   } catch (err) {
-    res
-      .status(ERR.INCORRECT_PASSWORD_ERROR.status)
-      .send(ERR.INCORRECT_PASSWORD_ERROR);
+    res.status(ERR.INVALID_EMAIL_ERROR.status).send(ERR.INVALID_EMAIL_ERROR);
     return;
   }
 });
