@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email_or_username\": \"test@test.com\",\r\n    \"password\": \"test\"\r\n}",
+					"raw": "{\r\n    \"email_or_username\": \"spooky\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -31,7 +31,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email_or_username\": \"taylorM@domain.ca\",\r\n    \"password\": \"CoolerPassword123\"\r\n}",
+					"raw": "{\r\n    \"email_or_username\": \"test@test.com\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -39,6 +39,24 @@
 					}
 				},
 				"url": "http://localhost:3000/api/v1/login"
+			},
+			"response": []
+		},
+		{
+			"name": "LoginAuth",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"login_validated\": true,\r\n    \"email_or_username\": \"spooky\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://growthly-backend.onrender.com/api/v1/login/auth"
 			},
 			"response": []
 		}
