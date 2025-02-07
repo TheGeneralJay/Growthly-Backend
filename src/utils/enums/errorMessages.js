@@ -19,6 +19,11 @@ const ErrorMessages = Object.freeze({
     message: "ERROR: Incorrect password.",
   },
 
+  USER_UNAUTHORIZED_ERROR: {
+    status: 400,
+    message: "ERROR: User unauthorized.",
+  },
+
   INVALID_USER_ERROR: {
     status: 404,
     message: "ERROR: Account with the given ID does not exist.",
