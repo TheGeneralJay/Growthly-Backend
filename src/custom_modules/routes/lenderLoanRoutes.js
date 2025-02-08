@@ -42,7 +42,7 @@ router.get("/:id", async (req, res) => {
     const loan = await db.loanBoardModel.findById(loanId);
 
     if (loan) {
-      res.status(200).json(loan);
+      res.status(200).send(loan);
     }
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);

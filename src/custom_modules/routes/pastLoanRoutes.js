@@ -23,6 +23,33 @@ router.get("/", async (req, res) => {
 });
 
 // -----------------------------------------------
+// *** GET PAST LOAN BY ID ***
+// -----------------------------------------------
+router.get("/:id", async (req, res) => {
+  const loanId = req.params.id;
+
+  // Check for valid ID.
+  try {
+    checkObjectId(loanId);
+  } catch (err) {
+    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
+    return;
+  }
+
+  // If we get here, find loan and send result.
+  try {
+    const pastLoan = await db.pastLoanModel.findById(loanId);
+
+    if (pastLoan) {
+      res.status(200).send(pastLoan);
+    }
+  } catch (err) {
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
+  }
+});
+
+// -----------------------------------------------
 // *** CREATE CURRENT LOAN ***
 // -----------------------------------------------
 router.post("/", async (req, res) => {
