@@ -39,8 +39,16 @@
   - [x] LoanBoard.
   - [x] CurrentLoan.
   - [x] PastLoan.
-- [ ] Place the try/catch "check for valid ID" block into a function if possible.
+- [x] Create doesEntryExist to validate if DB entries exist.
+  - [ ] Refactor USERS to use doesEntryExist.
+  - [ ] Refactor LOANBOARDS to use doesEntryExist.
+  - [ ] Refactor CURRENTLOANS to use doesEntryExist.
+  - [ ] Refactor PASTLOANS to use doesEntryExist.
 - [ ] Validate if user is a lender when trying to post a loan.
 - [ ] Fix app hanging when you try to delete something with a valid object ID (i.e. something you've already deleted once and try to delete again).
+  - [x] USERS.
+  - [ ] LOANBOARDS.
+  - [ ] CURRENTLOANS.
+  - [ ] PASTLOANS.
 - [ ] Error handle changeAvailability export.
 - [ ] Place update logic into its own helper function.

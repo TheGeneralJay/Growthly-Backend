@@ -4,6 +4,8 @@ const router = express.Router();
 const { checkObjectId } = require("../../utils/checkObjectId.js");
 const ERR = require("../../utils/enums/errorMessages.js");
 const UserTypes = require("../../utils/enums/userTypes.js");
+const { doesEntryExist } = require("../../utils/doesEntryExist.js");
+const ModelNames = require("../../utils/enums/modelNames.js");
 
 // DB Connection.
 db.mongoose.connect(db.uri);
@@ -38,15 +40,17 @@ router.get("/:id", async (req, res) => {
     return;
   }
 
-  // If we get here, find the user and send the result.
+  // If we get here, find the user and send the result if they exist.
   try {
-    const user = await db.userModel.findById(userId);
-
-    if (user) {
-      res.status(200).json(user);
+    if (await doesEntryExist(userId, ModelNames.USER)) {
+      const user = await db.userModel.findById(userId);
+      res.status(200).send(user);
+    } else {
+      // If we get here, no entry was found using the given ID.
+      throw new Error();
     }
   } catch (err) {
-    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    res.status(ERR.INVALID_USER_ERROR.status).send(ERR.INVALID_USER_ERROR);
     return;
   }
 });
@@ -94,11 +98,11 @@ router.put("/:id", async (req, res) => {
     return;
   }
 
-  // If we get here, grab the user and update as necessary.
+  // If we get here, grab the user and update if they exist.
   try {
-    const user = await db.userModel.findById(userId);
+    if (await doesEntryExist(userId, ModelNames.USER)) {
+      const user = await db.userModel.findById(userId);
 
-    if (user) {
       const requestedChanges = req.body;
 
       // Save the JSON keys for easy access.
@@ -115,9 +119,12 @@ router.put("/:id", async (req, res) => {
       // Save and confirm.
       await user.save();
       res.status(200).send("User Successfully Updated.");
+    } else {
+      // If we get here, no entry was found using the given ID.
+      throw new Error();
     }
   } catch (err) {
-    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    res.status(ERR.INVALID_USER_ERROR.status).send(ERR.INVALID_USER_ERROR);
     return;
   }
 });
@@ -137,15 +144,18 @@ router.delete("/:id", async (req, res) => {
 
   // If we get here, find the user and delete them if they exist in the system.
   try {
-    const user = await db.userModel.findById(userId);
+    if (await doesEntryExist(userId, ModelNames.USER)) {
+      const user = await db.userModel.findById(userId);
 
-    if (user) {
       await user.deleteOne({ _id: userId });
 
       res.status(200).send("User Successfully Deleted.");
+    } else {
+      // If we get here, no entry was found using the given ID.
+      throw new Error();
     }
   } catch (err) {
-    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    res.status(ERR.INVALID_USER_ERROR.status).send(ERR.INVALID_USER_ERROR);
     return;
   }
 });
