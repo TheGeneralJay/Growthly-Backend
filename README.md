@@ -26,6 +26,8 @@
   - [x] Connect a user object ID to the loans.
 - [x] Add custom error messages into its own file.
 - [x] Apply calculations automatically for amount_remaining values in currentLoans.
+- [ ] Add DB info into .env.
+- [ ] Set up forgotten password functionality.
 - [ ] Refactor address into object.
 - [ ] Apply interest calculations automatically where necessary.
 - [ ] CONTINUOUS: Clean up any messy implementations.
