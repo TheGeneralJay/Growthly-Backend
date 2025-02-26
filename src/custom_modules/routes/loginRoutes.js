@@ -3,9 +3,6 @@ const db = require("../database/dbConnection.js");
 const router = express.Router();
 const ERR = require("../../utils/enums/errorMessages.js");
 
-// DB Connection.
-db.mongoose.connect(db.uri);
-
 // -----------------------------------------------
 // *** SEND BACK STORED HASH PASSWORD ***
 // -----------------------------------------------

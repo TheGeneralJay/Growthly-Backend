@@ -6,9 +6,6 @@ const ERR = require("../../utils/enums/errorMessages.js");
 const LoanStatus = require("../../utils/enums/loanStatus.js");
 const { changeAvailability } = require("../../utils/changeAvailability.js");
 
-// DB Connection.
-db.mongoose.connect(db.uri);
-
 // -----------------------------------------------
 // *** GET ALL CURRENT LOANS ***
 // -----------------------------------------------

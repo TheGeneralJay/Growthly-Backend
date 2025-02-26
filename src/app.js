@@ -1,4 +1,5 @@
 const express = require("express");
+const db = require("./custom_modules/database/dbConnection.js");
 const app = express();
 const port = 3000;
 
@@ -37,5 +38,8 @@ app.use(borrowerLoanPath, borrowerLoanRoutes);
 app.use(pastLoanPath, pastLoanRoutes);
 
 app.listen(port, () => {
-  console.log(`App listening at port ${port}.`);
+  db.connectToMongo();
+  console.log("-------------------------------------------");
+  console.log(`INFO: App listening at port ${port}.`);
+  console.log("-------------------------------------------");
 });

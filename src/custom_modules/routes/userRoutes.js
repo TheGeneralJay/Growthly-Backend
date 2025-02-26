@@ -7,9 +7,6 @@ const UserTypes = require("../../utils/enums/userTypes.js");
 const { doesEntryExist } = require("../../utils/doesEntryExist.js");
 const ModelNames = require("../../utils/enums/modelNames.js");
 
-// DB Connection.
-db.mongoose.connect(db.uri);
-
 // -----------------------------------------------
 // *** GET ALL USERS ***
 // -----------------------------------------------
