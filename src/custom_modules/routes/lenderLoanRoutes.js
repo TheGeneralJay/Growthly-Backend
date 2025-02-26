@@ -21,6 +21,76 @@ router.get("/", async (req, res) => {
 });
 
 // -----------------------------------------------
+// *** GET LOANS BY SEARCH CRITERIA (MATCHES) ***
+// -----------------------------------------------
+router.get("/matches", async (req, res) => {
+  try {
+    // Grab loan specifications from body.
+    const loanFilters = req.body;
+
+    // Try to find an exact match for the user.
+    const exactMatches = await db.loanBoardModel.find({
+      $and: [
+        { amount: loanFilters.amount },
+        { interest_rate: loanFilters.interest_rate },
+        { length_of_loan: loanFilters.duration },
+      ],
+    });
+
+    // If there is an exact match, send this.
+    if (exactMatches.length > 0) {
+      res.status(200).send(exactMatches);
+      return;
+    }
+
+    // If we get here, there are no exact matches.
+    // Adjust parameters to offer similar loan matches.
+    const adjustedHigh = {
+      amount: req.body.amount + 500,
+      interest_rate: req.body.interest_rate + 0.02,
+      duration: req.body.duration + 3,
+    };
+
+    const adjustedLow = {
+      amount: req.body.amount - 500,
+      interest_rate: req.body.interest_rate - 0.02,
+      duration: req.body.duration - 3,
+    };
+
+    const matches = await db.loanBoardModel.find({
+      $or: [
+        {
+          $and: [
+            { amount: { $gte: adjustedLow.amount } },
+            { amount: { $lte: adjustedHigh.amount } },
+          ],
+        },
+
+        {
+          $and: [
+            { interest_rate: { $gte: adjustedLow.interest_rate } },
+            { interest_rate: { $lte: adjustedHigh.interest_rate } },
+          ],
+        },
+
+        {
+          $and: [
+            { length_of_loan: { $gte: adjustedLow.duration } },
+            { length_of_loan: { $lte: adjustedHigh.duration } },
+          ],
+        },
+      ],
+    });
+
+    res.status(200).send(matches);
+    return;
+  } catch (err) {
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
+  }
+});
+
+// -----------------------------------------------
 // *** GET LOAN BY ID ***
 // -----------------------------------------------
 router.get("/:id", async (req, res) => {
@@ -136,7 +206,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const loanId = req.params.id;
 
-  // Check for valid ID.
+  // // Check for valid ID.
   try {
     checkObjectId(loanId);
   } catch (err) {

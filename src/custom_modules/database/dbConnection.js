@@ -20,6 +20,7 @@ const connectToMongo = () => {
 
 module.exports = {
   MongoClient,
+  mongoose,
   connectToMongo,
   userModel,
   loanBoardModel,
