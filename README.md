@@ -27,6 +27,7 @@
 - [x] Add custom error messages into its own file.
 - [x] Apply calculations automatically for amount_remaining values in currentLoans.
 - [x] Add DB info into .env.
+- [x] Add endpoint for filtering loan matches.
 - [ ] Set up forgotten password functionality.
 - [ ] Refactor address into object.
 - [ ] Apply interest calculations automatically where necessary.
