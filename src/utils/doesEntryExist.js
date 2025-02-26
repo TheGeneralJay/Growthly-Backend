@@ -1,9 +1,6 @@
 const db = require("../custom_modules/database/dbConnection.js");
 const ModelNames = require("./enums/modelNames.js");
 
-// DB Connection.
-db.mongoose.connect(db.uri);
-
 const doesEntryExist = async (id, model) => {
   switch (model) {
     case ModelNames.USER:

@@ -4,9 +4,6 @@ const router = express.Router();
 const { checkObjectId } = require("../../utils/checkObjectId.js");
 const ERR = require("../../utils/enums/errorMessages.js");
 
-// DB Connection.
-db.mongoose.connect(db.uri);
-
 // -----------------------------------------------
 // *** GET ALL LOANS ***
 // -----------------------------------------------
