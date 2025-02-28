@@ -32,7 +32,6 @@ router.get("/matches", async (req, res) => {
     const exactMatches = await db.loanBoardModel.find({
       $and: [
         { amount: loanFilters.amount },
-        { interest_rate: loanFilters.interest_rate },
         { length_of_loan: loanFilters.duration },
       ],
     });
@@ -47,13 +46,11 @@ router.get("/matches", async (req, res) => {
     // Adjust parameters to offer similar loan matches.
     const adjustedHigh = {
       amount: req.body.amount + 500,
-      interest_rate: req.body.interest_rate + 0.02,
       duration: req.body.duration + 3,
     };
 
     const adjustedLow = {
       amount: req.body.amount - 500,
-      interest_rate: req.body.interest_rate - 0.02,
       duration: req.body.duration - 3,
     };
 
@@ -63,13 +60,6 @@ router.get("/matches", async (req, res) => {
           $and: [
             { amount: { $gte: adjustedLow.amount } },
             { amount: { $lte: adjustedHigh.amount } },
-          ],
-        },
-
-        {
-          $and: [
-            { interest_rate: { $gte: adjustedLow.interest_rate } },
-            { interest_rate: { $lte: adjustedHigh.interest_rate } },
           ],
         },
 
