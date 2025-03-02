@@ -23,7 +23,7 @@ router.get("/", async (req, res) => {
 // -----------------------------------------------
 // *** GET LOANS BY SEARCH CRITERIA (MATCHES) ***
 // -----------------------------------------------
-router.get("/matches", async (req, res) => {
+router.post("/matches", async (req, res) => {
   try {
     // Grab loan specifications from body.
     const loanFilters = req.body;
