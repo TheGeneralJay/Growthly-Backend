@@ -72,7 +72,7 @@ router.post("/matches", async (req, res) => {
       ],
     });
 
-    res.status(200).send(matches);
+    res.status(200).json(matches);
     return;
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
