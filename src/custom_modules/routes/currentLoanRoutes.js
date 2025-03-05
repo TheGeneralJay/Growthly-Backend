@@ -4,6 +4,9 @@ const router = express.Router();
 const { checkObjectId } = require("../../utils/checkObjectId.js");
 const ERR = require("../../utils/enums/errorMessages.js");
 const LoanStatus = require("../../utils/enums/loanStatus.js");
+const UserTypes = require("../../utils/enums/userTypes.js");
+const { doesEntryExist } = require("../../utils/doesEntryExist.js");
+const ModelNames = require("../../utils/enums/modelNames.js");
 const { changeAvailability } = require("../../utils/changeAvailability.js");
 
 // -----------------------------------------------
@@ -15,9 +18,10 @@ router.get("/", async (req, res) => {
     const loanList = await db.currentLoanModel.find({});
 
     // Return the loans.
-    res.status(200).json(loanList);
+    res.status(200).send(loanList);
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
   }
 });
 
@@ -27,24 +31,19 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const loanId = req.params.id;
 
-  // Check for valid ID.
+  // Check if loanId exists in the DB.
   try {
+    // Catches if id is entirely invalid.
     checkObjectId(loanId);
-  } catch (err) {
-    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
-    return;
-  }
 
-  // If we get here, find loan and send result.
-  try {
-    const currentLoan = await db.currentLoanModel.findById(loanId);
-
-    console.log(currentLoan);
-    if (currentLoan) {
+    if (await doesEntryExist(loanId, ModelNames.CURRENTLOAN)) {
+      const currentLoan = await db.currentLoanModel.findById(loanId);
       res.status(200).send(currentLoan);
+    } else {
+      throw new Error();
     }
   } catch (err) {
-    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    res.status(ERR.INVALID_LOAN_ERROR.status).send(ERR.INVALID_LOAN_ERROR);
     return;
   }
 });
@@ -54,73 +53,87 @@ router.get("/:id", async (req, res) => {
 // -----------------------------------------------
 router.post("/", async (req, res) => {
   // Grab request body.
-  const newCurrentLoan = {
-    loan_id: req.body.loan_id,
-    borrower_id: req.body.borrower_id,
-    payment_freq: req.body.payment_freq,
-  };
+  const newCurrentLoan = req.body;
 
+  // Check if loan_id exists in the DB.
   try {
-    // Check if borrower_id matches a user in the DB.
-    if (checkObjectId(newCurrentLoan.borrower_id)) {
-      const user = db.userModel.findById(newCurrentLoan.borrower_id);
+    checkObjectId(newCurrentLoan.loan_id);
 
-      if (!user) {
-        throw new Error();
-      }
-    }
-  } catch (err) {
-    res.status(ERR.INVALID_USER_ERROR.status).send(ERR.INVALID_USER_ERROR);
-    return;
-  }
-
-  try {
-    // Check if the loan_id matches a loan in the DB.
-    if (checkObjectId(newCurrentLoan.loan_id)) {
-      const loanRes = db.loanBoardModel.findById(newCurrentLoan.loan_id);
-
-      if (!loanRes) {
-        throw new Error();
-      }
+    if (await !doesEntryExist(newCurrentLoan.loan_id, ModelNames.LOANBOARD)) {
+      throw new Error();
     }
   } catch (err) {
     res.status(ERR.INVALID_LOAN_ERROR.status).send(ERR.INVALID_LOAN_ERROR);
     return;
   }
 
-  // If we make it here, try to make the new loan.
+  const loan = await db.loanBoardModel.findById(newCurrentLoan.loan_id);
+
+  // If the loan is unavailable, do not proceed.
   try {
-    const loanObj = await db.loanBoardModel.findById(newCurrentLoan.loan_id);
-
-    // If the loan is unavailable, don't allow user to claim it.
-    if (loanObj.available) {
-      const currentLoanObj = {
-        loan_id: newCurrentLoan.loan_id,
-        borrower_id: newCurrentLoan.borrower_id,
-        amount: loanObj.amount,
-        amount_paid: 0,
-        amount_remaining: loanObj.amount,
-        interest_rate: loanObj.interest_rate,
-        interest_paid: 0,
-        length_of_loan: loanObj.length_of_loan,
-        length_remaining: loanObj.length_of_loan,
-        payment_freq: newCurrentLoan.payment_freq,
-        loan_status: LoanStatus.GOOD,
-      };
-
-      // Save and send confirmation.
-      const loan = new db.currentLoanModel(currentLoanObj);
-      await loan.save();
-
-      // If this all succeeds, set the loan to unavailable.
-      changeAvailability(loanObj, false);
-
-      res.status(201).send("Current loan successfully saved.");
-    } else {
-      res
-        .status(ERR.LOAN_UNAVAILABLE_ERROR.status)
-        .send(ERR.LOAN_UNAVAILABLE_ERROR);
+    if (!loan.available) {
+      throw new Error();
     }
+  } catch (err) {
+    res
+      .status(ERR.LOAN_UNAVAILABLE_ERROR.status)
+      .send(ERR.LOAN_UNAVAILABLE_ERROR);
+    return;
+  }
+
+  // Check if borrower_id exists in the DB.
+  try {
+    checkObjectId(newCurrentLoan.borrower_id);
+
+    if (await !doesEntryExist(newCurrentLoan.borrower_id, ModelNames.USER)) {
+      throw new Error();
+    }
+  } catch (err) {
+    res.status(ERR.INVALID_USER_ERROR.status).send(ERR.INVALID_USER_ERROR);
+    return;
+  }
+
+  const borrower = await db.userModel.findById(newCurrentLoan.borrower_id);
+  // Make sure user is a borrower.
+  try {
+    if (borrower.user_type !== UserTypes.BORROWER) {
+      throw new Error();
+    }
+  } catch (err) {
+    res.status(400).send("ERROR: User is not a BORROWER.");
+    return;
+  }
+
+  // Finally, if we make it here, create the currentLoan and add it to the user.
+  try {
+    const currentLoan = {
+      loan_id: newCurrentLoan.loan_id,
+      borrower_id: newCurrentLoan.borrower_id,
+      amount: loan.amount,
+      amount_paid: 0,
+      amount_remaining: loan.amount,
+      interest_rate: loan.interest_rate,
+      interest_paid: 0,
+      length_of_loan: loan.length_of_loan,
+      length_remaining: loan.length_of_loan,
+      payment_freq: newCurrentLoan.payment_freq,
+      loan_status: LoanStatus.GOOD,
+    };
+
+    // Save and confirm.
+    const saveLoan = new db.currentLoanModel(currentLoan);
+    await saveLoan.save();
+
+    // Set the loan to unavailable.
+    changeAvailability(loan, false);
+
+    // Add the loan to the borrower.
+    borrower.current_loans.push(saveLoan._id);
+    await borrower.save();
+
+    res
+      .status(200)
+      .send("Current loan has been accepted and added to borrower account.");
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
     return;
@@ -133,36 +146,47 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const currentLoanId = req.params.id;
 
-  // Check for valid ID.
+  // Check if the currentLoan exists in the DB.
   try {
     checkObjectId(currentLoanId);
+
+    if (await !doesEntryExist(currentLoanId, ModelNames.CURRENTLOAN)) {
+      throw new Error();
+    }
   } catch (err) {
     res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
     return;
   }
 
-  // If we get here, update as necessary.
+  // Verify that we are not trying to change the user that the loan is tied to.
+  const currentLoan = await db.currentLoanModel.findById(currentLoanId);
+  const requestedChanges = req.body;
+
   try {
-    const currentLoan = await db.currentLoanModel.findById(currentLoanId);
-
-    if (currentLoan) {
-      const requestedChanges = req.body;
-
-      // Save JSON keys for easy access.
-      const changeKeys = Object.keys(requestedChanges);
-
-      // Loop through keys.
-      changeKeys.forEach((key) => {
-        // If the key matches the one in the schema, update it.
-        if (currentLoan[key]) {
-          currentLoan[key] = requestedChanges[key];
-        }
-      });
-
-      // Save and confirm.
-      await currentLoan.save();
-      res.status(200).send("Loan successfully updated.");
+    if (requestedChanges.borrower_id !== undefined) {
+      throw new Error();
     }
+  } catch (err) {
+    res.status(400).send("ERROR: Cannot change user that loan is tied to.");
+    return;
+  }
+
+  // If we get here, loop through the keys and adjust as necessary.
+  try {
+    // Save JSON keys for easy access.
+    const changeKeys = Object.keys(requestedChanges);
+
+    // Loop through keys.
+    changeKeys.forEach((key) => {
+      // If the key matches one in the schema, update it.
+      if (currentLoan[key]) {
+        currentLoan[key] = requestedChanges[key];
+      }
+    });
+
+    // Save and confirm.
+    await currentLoan.save();
+    res.status(200).send("Current loan successfully updated.");
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
     return;
@@ -175,29 +199,53 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const currentLoanId = req.params.id;
 
-  // Check for valid ID.
+  // Check if the loan exists in the DB.
   try {
     checkObjectId(currentLoanId);
+
+    if (await !doesEntryExist(currentLoanId, ModelNames.CURRENTLOAN)) {
+      throw new Error();
+    }
   } catch (err) {
     res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
     return;
   }
 
-  // If we get here, find the loan and delete it if it exists.
+  // If loan exists, verify that the borrower exists.
+  const currentLoan = await db.currentLoanModel.findById(currentLoanId);
+
   try {
-    const currentLoan = await db.currentLoanModel.findById(currentLoanId);
+    checkObjectId(currentLoan.borrower_id);
 
-    if (currentLoan) {
-      await currentLoan.deleteOne({ _id: currentLoanId });
-
-      res.status(200).send("Current loan successfully deleted.");
+    if (await !doesEntryExist(currentLoan.borrower_id, ModelNames.USER)) {
+      throw new Error();
     }
+  } catch (err) {
+    res.status(ERR.INVALID_USER_ERROR.status).send(ERR.INVALID_USER_ERROR);
+    return;
+  }
+
+  // If we get here, find the loan and delete it.
+  try {
+    const borrower = await db.userModel.findById(currentLoan.borrower_id);
+
+    // Remove the loan from the borrower.
+    const index = borrower.current_loans.indexOf(currentLoanId);
+    // If loan is found, remove it from borrower.
+    if (index > -1) {
+      borrower.current_loans.splice(index, 1);
+    }
+    await borrower.save();
+
+    // Delete the loan entirely.
+    await db.currentLoanModel.deleteOne({ _id: currentLoanId });
+
+    res.status(200).send("Current loan has been deleted.");
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
     return;
   }
 });
-
 // -----------------------------------------------
 // *** UPDATE AMOUNTS ON LOAN ***
 // -----------------------------------------------

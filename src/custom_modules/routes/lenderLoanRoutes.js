@@ -2,6 +2,9 @@ const express = require("express");
 const db = require("../database/dbConnection.js");
 const router = express.Router();
 const { checkObjectId } = require("../../utils/checkObjectId.js");
+const UserTypes = require("../../utils/enums/userTypes.js");
+const { doesEntryExist } = require("../../utils/doesEntryExist.js");
+const ModelNames = require("../../utils/enums/modelNames.js");
 const ERR = require("../../utils/enums/errorMessages.js");
 
 // -----------------------------------------------
@@ -86,23 +89,19 @@ router.post("/matches", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const loanId = req.params.id;
 
-  // Check for valid ID.
+  // Check if loanId exists in the DB.
   try {
+    // Catches if id is entirely invalid.
     checkObjectId(loanId);
-  } catch (err) {
-    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
-    return;
-  }
 
-  // If we get here, find loan and send result.
-  try {
-    const loan = await db.loanBoardModel.findById(loanId);
-
-    if (loan) {
+    if (await doesEntryExist(loanId, ModelNames.LOANBOARD)) {
+      const loan = await db.loanBoardModel.findById(loanId);
       res.status(200).send(loan);
+    } else {
+      throw new Error();
     }
   } catch (err) {
-    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    res.status(ERR.INVALID_LOAN_ERROR.status).send(ERR.INVALID_LOAN_ERROR);
     return;
   }
 });
@@ -110,38 +109,53 @@ router.get("/:id", async (req, res) => {
 // -----------------------------------------------
 // *** CREATE LOAN ***
 // -----------------------------------------------
+
 router.post("/", async (req, res) => {
-  // Grab request body.
+  // Grab the request body.
   const newLoan = {
     lender_id: req.body.lender_id,
     amount: req.body.amount,
     interest_rate: req.body.interest_rate,
     length_of_loan: req.body.length_of_loan,
-    available: true, // Make loan available upon creation for borrowers to claim.
+    available: true,
   };
 
+  // Check if lender_id user exists in the DB.
   try {
-    // Check if lender_id matches a user in the DB.
-    // *** MAKE IT SO IT ENSURES THE USER IS A LENDER LATER.
-    if (checkObjectId(newLoan.lender_id)) {
-      const user = db.userModel.findById(newLoan.lender_id);
+    // Catches if id is entirely invalid.
+    checkObjectId(newLoan.lender_id);
 
-      if (!user) {
-        throw new Error();
-      }
+    if (await !doesEntryExist(newLoan.lender_id, ModelNames.USER)) {
+      throw new Error();
     }
   } catch (err) {
     res.status(ERR.INVALID_USER_ERROR.status).send(ERR.INVALID_USER_ERROR);
     return;
   }
 
-  // If we make it here, try to make the new loan.
+  // Grab user from DB.
+  const user = await db.userModel.findById(newLoan.lender_id);
+
+  // Check if user is a lender.
+  try {
+    if (user.user_type !== UserTypes.LENDER) {
+      throw new Error();
+    }
+  } catch (err) {
+    res.status(400).send("ERROR: User is not a LENDER.");
+    return;
+  }
+
+  // If we get here, create the postedLoan and add it to user.
   try {
     const loan = new db.loanBoardModel(newLoan);
-
-    // Save and send confirmation.
     await loan.save();
-    res.status(201).send("Loan successfully posted.");
+
+    // Add loan to user.
+    user.posted_loans.push(loan._id);
+    await user.save();
+
+    res.status(200).send("Loan has been posted and added to lender account.");
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
     return;
@@ -154,39 +168,50 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const loanId = req.params.id;
 
-  // Check for valid ID.
+  // Check if the loan exists in the DB.
   try {
     checkObjectId(loanId);
+
+    if (await !doesEntryExist(loanId, ModelNames.LOANBOARD)) {
+      throw new Error();
+    }
   } catch (err) {
     res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
     return;
   }
 
-  // If we get here, update as necessary.
+  // Verify that we are not trying to change the lender the loan is tied to.
+  // If we are, probably easier just to make new loan, so error out.
+  const loan = await db.loanBoardModel.findById(loanId);
+  const requestedChanges = req.body;
+
   try {
-    const loan = await db.loanBoardModel.findById(loanId);
-
-    if (loan) {
-      const requestedChanges = req.body;
-
-      // Save JSON keys for easy access.
-      const changeKeys = Object.keys(requestedChanges);
-
-      // Loop through keys.
-      changeKeys.forEach((key) => {
-        // If the key matches the one in the schema, update it.
-        if (loan[key]) {
-          loan[key] = requestedChanges[key];
-        }
-      });
-
-      // Save and confirm.
-      await loan.save();
-      res.status(200).send("Loan Successfully Updated.");
+    if (requestedChanges.lender_id !== undefined) {
+      throw new Error();
     }
   } catch (err) {
-    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    res.status(400).send("ERROR: Cannot change user that the loan is tied to.");
     return;
+  }
+
+  // If we get here, loop through the keys and adjust as necessary.
+  try {
+    // Save JSON keys for easy access.
+    const changeKeys = Object.keys(requestedChanges);
+
+    // Loop through keys.
+    changeKeys.forEach((key) => {
+      // If the key matches one in the schema, update it.
+      if (loan[key]) {
+        loan[key] = requestedChanges[key];
+      }
+    });
+
+    // Save and confirm.
+    await loan.save();
+    res.status(200).send("Posted loan successfully updated.");
+  } catch (err) {
+    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
   }
 });
 
@@ -196,23 +221,48 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const loanId = req.params.id;
 
-  // // Check for valid ID.
+  // Check if the loan exists in the DB.
   try {
     checkObjectId(loanId);
+
+    if (await !doesEntryExist(loanId, ModelNames.LOANBOARD)) {
+      throw new Error();
+    }
   } catch (err) {
     res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
     return;
   }
 
-  // If we get here, find the loan and delete it if it exists.
+  // If the loan exists, verify that the lender tied to it also exists.
+  const loan = await db.loanBoardModel.findById(loanId);
+
   try {
-    const loan = await db.loanBoardModel.findById(loanId);
+    checkObjectId(loan.lender_id);
 
-    if (loan) {
-      await loan.deleteOne({ _id: loanId });
-
-      res.status(200).send("Loan Successfully Deleted.");
+    if (await !doesEntryExist(loan.lender_id, ModelNames.USER)) {
+      throw new Error();
     }
+  } catch (err) {
+    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
+    return;
+  }
+
+  // If we get here, find the loan and delete it.
+  try {
+    const lender = await db.userModel.findById(loan.lender_id);
+
+    // Remove loan from lender.
+    const index = lender.posted_loans.indexOf(loanId);
+    // If loan is found, remove it from the lender.
+    if (index > -1) {
+      lender.posted_loans.splice(index, 1);
+    }
+    await lender.save();
+
+    // Delete the loan entirely.
+    await db.loanBoardModel.deleteOne({ _id: loanId });
+
+    res.status(200).send("Posted loan has been deleted.");
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
     return;
