@@ -160,9 +160,9 @@ router.delete("/:id", async (req, res) => {
 // -----------------------------------------------
 // *** ADD LOAN TO USER ***
 // -----------------------------------------------
-router.put("/:id/postedLoan/:loanId", async (req, res) => {
-  const userId = req.params.id;
-  const loanId = req.params.loanId;
+router.put("/:userId/addLoan", async (req, res) => {
+  const userId = req.params.userId;
+  const loanId = req.body.loanId;
 
   // Check if IDs are valid.
   try {
@@ -173,15 +173,20 @@ router.put("/:id/postedLoan/:loanId", async (req, res) => {
     return;
   }
 
-  // If we get here, try to update.
+  // Find if user / loan  exists.
   try {
-    const addLoan = await db.userModel.findByIdAndUpdate(userId, {
-      $push: { posted_loans: loanId },
-    });
+    if (
+      (await doesEntryExist(userId, ModelNames.USER)) &&
+      (await doesEntryExist(loanId, ModelNames.LOANBOARD))
+    ) {
+      const addLoan = await db.userModel.findByIdAndUpdate(userId, {
+        $push: { posted_loans: loanId },
+      });
 
-    await addLoan.save();
+      await addLoan.save();
 
-    res.status(200).send("Loan successfully added to user.");
+      res.status(200).send("Loan successfully added to user.");
+    }
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
     return;
