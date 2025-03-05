@@ -42,8 +42,9 @@
   - [x] PastLoan.
 - [x] Create doesEntryExist to validate if DB entries exist.
   - [ ] Refactor USERS to use doesEntryExist.
-  - [ ] Refactor LOANBOARDS to use doesEntryExist.
-  - [ ] Refactor CURRENTLOANS to use doesEntryExist.
+  - [x] Refactor LOANBOARDS to use doesEntryExist.
+  - [x] Refactor CURRENTLOANS to use doesEntryExist.
+    - [ ] Refactor the payment endpoint.
   - [ ] Refactor PASTLOANS to use doesEntryExist.
 - [ ] Validate if user is a lender when trying to post a loan.
 - [ ] Fix app hanging when you try to delete something with a valid object ID (i.e. something you've already deleted once and try to delete again).

@@ -152,7 +152,7 @@ router.post("/", async (req, res) => {
     await loan.save();
 
     // Add loan to user.
-    user.posted_loans = loan._id;
+    user.posted_loans.push(loan._id);
     await user.save();
 
     res.status(200).send("Loan has been posted and added to lender account.");
