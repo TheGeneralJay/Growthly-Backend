@@ -249,59 +249,45 @@ router.delete("/:id", async (req, res) => {
 // -----------------------------------------------
 // *** UPDATE AMOUNTS ON LOAN ***
 // -----------------------------------------------
-
 router.put("/payment/:id", async (req, res) => {
   const currentLoanId = req.params.id;
 
-  // Check for valid ID.
+  // Check if the loan exists in the DB.
   try {
     checkObjectId(currentLoanId);
+
+    if (await !doesEntryExist(currentLoanId, ModelNames.CURRENTLOAN)) {
+      throw new Error();
+    }
   } catch (err) {
     res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
     return;
   }
 
-  // Find the loan and attempt to apply the payment if it exists.
+  const currentLoan = await db.currentLoanModel.findById(currentLoanId);
+  const payment = req.body.amount_paid;
+
+  // Check that the amount_remaining will be valid before making a change.
   try {
-    const currentLoan = await db.currentLoanModel.findById(currentLoanId);
+    let updatedAmountRemaining = updateAmountRemaining(currentLoan, payment);
 
-    if (!currentLoan) {
+    // If the updated amount remaining is >= 0, proceed with changes.
+    if (updatedAmountRemaining >= 0) {
+      currentLoan.amount_remaining = updatedAmountRemaining;
+      currentLoan.amount_paid += payment;
+
+      await currentLoan.save();
+      res
+        .status(200)
+        .send(
+          `Payment amount of ${payment} applied to loan #${currentLoanId}.`
+        );
+    } else {
+      // If we get here, updateAmountRemaining exceeds total amount owed.
       throw new Error();
-    }
-
-    const payment = req.body.amount_paid;
-
-    // Send to default error if the body sent undefined.
-    if (payment == undefined) {
-      throw new Error();
-    }
-
-    // Check if the amount_remaining will be valid before attempting to make any true changes.
-    try {
-      let updatedAmountRemaining = updateAmountRemaining(currentLoan, payment);
-
-      // If the updated amount remaining is greater than / equal to 0, we can proceed with the changes.
-      if (updatedAmountRemaining >= 0) {
-        currentLoan.amount_remaining = updatedAmountRemaining;
-        currentLoan.amount_paid += payment;
-
-        await currentLoan.save();
-        res
-          .status(200)
-          .send(
-            `Payment amount of ${payment} applied to loan #${currentLoanId}.`
-          );
-        return;
-      } else {
-        // If we get here, it means the updateAmountRemaining exceeds the total amount owed.
-        throw new Error();
-      }
-    } catch (err) {
-      res.status(ERR.INVALID_AMT_ERROR.status).send(ERR.INVALID_AMT_ERROR);
-      return;
     }
   } catch (err) {
-    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    res.status(ERR.INVALID_AMT_ERROR.status).send(ERR.INVALID_AMT_ERROR);
     return;
   }
 });
