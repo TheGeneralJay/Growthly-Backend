@@ -3,6 +3,9 @@ const db = require("../database/dbConnection.js");
 const router = express.Router();
 const { checkObjectId } = require("../../utils/checkObjectId.js");
 const ERR = require("../../utils/enums/errorMessages.js");
+const UserTypes = require("../../utils/enums/userTypes.js");
+const { doesEntryExist } = require("../../utils/doesEntryExist.js");
+const ModelNames = require("../../utils/enums/modelNames.js");
 
 // -----------------------------------------------
 // *** GET ALL PAST LOANS ***
@@ -13,9 +16,10 @@ router.get("/", async (req, res) => {
     const loanList = await db.pastLoanModel.find({});
 
     // Return the loans.
-    res.status(200).json(loanList);
+    res.status(200).send(loanList);
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    return;
   }
 });
 
@@ -25,23 +29,18 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const loanId = req.params.id;
 
-  // Check for valid ID.
+  // Check if loanId exists in the DB.
   try {
     checkObjectId(loanId);
-  } catch (err) {
-    res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
-    return;
-  }
 
-  // If we get here, find loan and send result.
-  try {
-    const pastLoan = await db.pastLoanModel.findById(loanId);
-
-    if (pastLoan) {
+    if (await doesEntryExist(loanId, ModelNames.PASTLOAN)) {
+      const pastLoan = await db.pastLoanModel.findById(loanId);
       res.status(200).send(pastLoan);
+    } else {
+      throw new Error();
     }
   } catch (err) {
-    res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
+    res.status(ERR.INVALID_LOAN_ERROR.status).send(ERR.INVALID_LOAN_ERROR);
     return;
   }
 });
@@ -50,38 +49,27 @@ router.get("/:id", async (req, res) => {
 // *** CREATE CURRENT LOAN ***
 // -----------------------------------------------
 router.post("/", async (req, res) => {
-  // Grab current loan ID from body.
-  const currentLoanID = req.body.current_loan_id;
+  const currentLoanId = req.body.current_loan_id;
 
-  let currLoan,
-    loanBoard = false;
-
-  // Ensure currentLoan exists.
+  // Ensure currentLoan exists in the DB.
   try {
-    if (checkObjectId(currentLoanID)) {
-      currLoan = await db.currentLoanModel.findById(currentLoanID);
+    checkObjectId(currentLoanId);
 
-      if (!currLoan) {
-        throw new Error();
-      }
-    }
-
-    // Grab the loanBoard and currentLoan objects.
-    if (checkObjectId(currLoan.loan_id)) {
-      loanBoard = await db.loanBoardModel.findById(currLoan.loan_id);
-
-      if (!loanBoard) {
-        throw new Error();
-      }
+    if (await !doesEntryExist(currentLoanId, ModelNames.CURRENTLOAN)) {
+      throw new Error();
     }
   } catch (err) {
     res.status(ERR.INVALID_LOAN_ERROR.status).send(ERR.INVALID_LOAN_ERROR);
+    return;
   }
 
-  // Attach information to easier variables.
+  const currentLoan = await db.currentLoanModel.findById(currentLoanId);
+  const postedLoan = await db.loanBoardModel.findById(currentLoan.loan_id);
+
+  // Attach information to variables for easier access.
   const [
-    lenderID,
-    borrowerID,
+    lenderId,
+    borrowerId,
     loanLength,
     paymentFreq,
     amount,
@@ -89,23 +77,23 @@ router.post("/", async (req, res) => {
     loanTotal,
     totalInterestPaid,
   ] = [
-    loanBoard.lender_id,
-    currLoan.borrower_id,
-    currLoan.length_of_loan,
-    currLoan.payment_freq,
-    currLoan.amount,
-    currLoan.interest_rate,
-    currLoan.amount_paid,
-    currLoan.interest_paid,
+    postedLoan.lender_id,
+    currentLoan.borrower_id,
+    currentLoan.length_of_loan,
+    currentLoan.payment_freq,
+    currentLoan.amount,
+    currentLoan.interest_rate,
+    currentLoan.amount_paid,
+    currentLoan.interest_paid,
   ];
 
-  // If we make it here, try to make the new loan.
+  // Make the new pastLoan to save to the DB.
   try {
     const newPastLoan = {
-      current_loan_id: currentLoanID,
-      loan_board_id: loanBoard._id,
-      lender_id: lenderID,
-      borrower_id: borrowerID,
+      current_loan_id: currentLoanId,
+      loan_board_id: postedLoan.id,
+      lender_id: lenderId,
+      borrower_id: borrowerId,
       length_of_loan: loanLength,
       payment_freq: paymentFreq,
       amount: amount,
@@ -119,7 +107,28 @@ router.post("/", async (req, res) => {
     const pastLoan = new db.pastLoanModel(newPastLoan);
     await pastLoan.save();
 
-    res.status(201).send("Past loan successfully saved.");
+    // Add pastLoan to borrower / lenders and remove from currentLoan / postedLoans.
+    const lender = await db.userModel.findById(newPastLoan.lender_id);
+    const borrower = await db.userModel.findById(newPastLoan.borrower_id);
+
+    lender.past_loans.push(pastLoan._id);
+    borrower.past_loans.push(pastLoan._id);
+
+    const lenderIndex = lender.posted_loans.indexOf(newPastLoan.loan_board_id);
+    const borrowerIndex = borrower.current_loans.indexOf(currentLoanId);
+
+    if (lenderIndex > -1) {
+      lender.posted_loans.splice(lenderIndex, 1);
+    }
+
+    if (borrowerIndex > -1) {
+      borrower.current_loans.splice(borrowerIndex, 1);
+    }
+
+    await lender.save();
+    await borrower.save();
+
+    res.status(200).send("Past loan has been saved.");
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
     return;
@@ -132,35 +141,37 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const pastLoanId = req.params.id;
 
-  // Check for valid ID.
+  // Check if pastLoan exists in the DB.
   try {
     checkObjectId(pastLoanId);
+
+    if (await !doesEntryExist(pastLoanId, ModelNames.PASTLOAN)) {
+      throw new Error();
+    }
   } catch (err) {
     res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
     return;
   }
 
-  // If we get here, update as necessary.
+  // Update as necessary.
   try {
     const pastLoan = await db.pastLoanModel.findById(pastLoanId);
 
-    if (pastLoan) {
-      const requestedChanges = req.body;
+    const requestedChanges = req.body;
 
-      // Save JSON keys for easy access.
-      const changeKeys = Object.keys(requestedChanges);
+    // Save JSON keys for easy access.
+    const changeKeys = Object.keys(requestedChanges);
 
-      // Loop through keys.
-      changeKeys.forEach((key) => {
-        if (pastLoan[key]) {
-          pastLoan[key] = requestedChanges[key];
-        }
-      });
+    // Loop through keys.
+    changeKeys.forEach((key) => {
+      if (pastLoan[key]) {
+        pastLoan[key] = requestedChanges[key];
+      }
+    });
 
-      // Save and confirm.
-      await pastLoan.save();
-      res.status(200).send("Loan successfully updated.");
-    }
+    // Save and confirm.
+    await pastLoan.save();
+    res.status(200).send("Past loan successfully updated.");
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
     return;
@@ -173,23 +184,47 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const pastLoanId = req.params.id;
 
-  // Check for valid ID.
+  // Check if pastLoan exists in DB.
   try {
     checkObjectId(pastLoanId);
+
+    if (await !doesEntryExist(pastLoanId, ModelNames.PASTLOAN)) {
+      throw new Error();
+    }
   } catch (err) {
     res.status(ERR.INVALID_ID_ERROR.status).send(ERR.INVALID_ID_ERROR);
     return;
   }
 
-  // If we get here, find the loan and delete it if it exists.
+  // Delete the loan.
   try {
     const pastLoan = await db.pastLoanModel.findById(pastLoanId);
 
-    if (pastLoan) {
-      await pastLoan.deleteOne({ _id: pastLoanId });
+    // Grab the users to delete pastLoan from their accounts.
+    const borrower = await db.userModel.findById(pastLoan.borrower_id);
+    const lender = await db.userModel.findById(pastLoan.lender_id);
 
-      res.status(200).send("Past loan successfully deleted.");
+    if (borrower !== null) {
+      const borrowerIndex = borrower.past_loans.indexOf(pastLoanId);
+
+      if (borrowerIndex > -1) {
+        borrower.past_loans.splice(borrowerIndex, 1);
+        await borrower.save();
+      }
     }
+
+    if (lender !== null) {
+      const lenderIndex = lender.past_loans.indexOf(pastLoanId);
+
+      if (lenderIndex > -1) {
+        lender.past_loans.splice(lenderIndex, 1);
+        await lender.save();
+      }
+    }
+
+    // Delete pastLoan entirely.
+    await db.pastLoanModel.deleteOne({ _id: pastLoanId });
+    res.status(200).send("Past loan has been deleted.");
   } catch (err) {
     res.status(ERR.DEFAULT_ERROR.status).send(ERR.DEFAULT_ERROR);
     return;
