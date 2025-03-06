@@ -3,7 +3,6 @@ const db = require("../database/dbConnection.js");
 const router = express.Router();
 const { checkObjectId } = require("../../utils/checkObjectId.js");
 const ERR = require("../../utils/enums/errorMessages.js");
-const UserTypes = require("../../utils/enums/userTypes.js");
 const { doesEntryExist } = require("../../utils/doesEntryExist.js");
 const ModelNames = require("../../utils/enums/modelNames.js");
 
