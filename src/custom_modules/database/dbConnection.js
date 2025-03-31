@@ -11,7 +11,9 @@ dotenv.config();
 const MONGO_URI = process.env.URI;
 
 const connectToMongo = () => {
-  mongoose.connect(MONGO_URI);
+  mongoose.connect(
+    "mongodb+srv://jayadmin:hiHf7f1KOFIzJT4V@users.ai1y6.mongodb.net/"
+  );
 
   console.log("-------------------------------------------");
   console.log(`INFO: Successfully connected to MongoDB.`);
