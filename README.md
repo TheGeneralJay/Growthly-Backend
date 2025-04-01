@@ -28,10 +28,6 @@
 - [x] Apply calculations automatically for amount_remaining values in currentLoans.
 - [x] Add DB info into .env.
 - [x] Add endpoint for filtering loan matches.
-- [ ] Set up forgotten password functionality.
-- [ ] Refactor address into object.
-- [ ] Apply interest calculations automatically where necessary.
-- [ ] CONTINUOUS: Clean up any messy implementations.
 
 ## TODO [FIXES]:
 
@@ -40,8 +36,8 @@
   - [x] LoanBoard.
   - [x] CurrentLoan.
   - [x] PastLoan.
-- [ ] Create doesEntryExist to validate if DB entries exist.
-  - [ ] Refactor USERS to use doesEntryExist.
+- [x] Create doesEntryExist to validate if DB entries exist.
+  - [x] Refactor USERS to use doesEntryExist.
   - [x] Refactor LOANBOARDS to use doesEntryExist.
   - [x] Refactor CURRENTLOANS to use doesEntryExist.
     - [x] Refactor the payment endpoint.
@@ -52,4 +48,3 @@
   - [x] LOANBOARDS.
   - [x] CURRENTLOANS.
   - [x] PASTLOANS.
-- [ ] Error handle changeAvailability export.
